@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>멸종위기 동물 탐험가</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+    * {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* Custom Animations */
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.9) translateY(10px); }
+      70% { transform: scale(1.03); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @keyframes pulseSoft {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .animate-pop-in {
+      animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .animate-float {
+      animation: floatSlow 3s ease-in-out infinite;
+    }
+
+    .animate-pulse-soft {
+      animation: pulseSoft 2s ease-in-out infinite;
+    }
+
+    /* Button Press Effects */
+    .btn-bounce {
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .btn-bounce:active {
+      transform: scale(0.93) translateY(3px) !important;
+      box-shadow: none !important;
+    }
+
+    /* Webkit Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-teal-50 via-emerald-50 to-amber-50 min-h-screen text-slate-800 p-3 sm:p-6 flex flex-col items-center justify-between">
+
+  <!-- Main Container -->
+  <div class="w-full max-w-4xl bg-white/90 backdrop-blur-md rounded-3xl shadow-xl border-4 border-emerald-200/60 p-4 sm:p-8 relative flex-1 flex flex-col justify-between overflow-hidden my-auto">
+    
+    <!-- Top Navigation Header -->
+    <div>
+      <header class="flex flex-col sm:flex-row items-center justify-between gap-4 pb-4 border-b-2 border-dashed border-emerald-200 mb-6">
+        <!-- Logo / Title -->
+        <div class="flex items-center gap-3 cursor-pointer" onclick="goHome()">
+          <span class="text-4xl sm:text-5xl animate-float">🐾</span>
+          <div class="text-center sm:text-left">
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-emerald-700 tracking-tight flex items-center gap-2">
+              멸종위기 동물 탐험가
+            </h1>
+            <p class="text-xs sm:text-sm text-emerald-600 font-semibold mt-0.5" id="headerSubtitle">소중한 우리 동물 친구들을 지켜주세요!</p>
+          </div>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+          <button id="btnBack" onclick="goBack()" class="hidden btn-bounce px-4 py-2.5 bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold rounded-2xl shadow-sm border-2 border-amber-300 flex items-center gap-1.5 text-sm sm:text-base">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>뒤로가기</span>
+          </button>
+          
+          <button onclick="goHome()" class="btn-bounce px-4 py-2.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold rounded-2xl shadow-sm border-2 border-emerald-300 flex items-center gap-1.5 text-sm sm:text-base">
+            <i class="fa-solid fa-house"></i>
+            <span>처음으로</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Mode Switch Tabs -->
+      <div class="grid grid-cols-2 gap-3 p-1.5 bg-emerald-100/70 rounded-2xl mb-6">
+        <button id="tabExplore" onclick="switchMainTab('explore')" class="py-3 px-4 rounded-xl font-bold text-base sm:text-lg transition-all duration-200 flex items-center justify-center gap-2 bg-white text-emerald-700 shadow-md">
+          <i class="fa-solid fa-compass"></i>
+          <span>1페이지: 동물 탐험</span>
+        </button>
+        <button id="tabQuiz" onclick="switchMainTab('quiz')" class="py-3 px-4 rounded-xl font-bold text-base sm:text-lg transition-all duration-200 flex items-center justify-center gap-2 text-emerald-800 hover:bg-white/50">
+          <i class="fa-solid fa-puzzle-piece"></i>
+          <span>2페이지: 동물 퀴즈</span>
+        </button>
+      </div>
+
+      <!-- PAGE 1: EXPLORE VIEW -->
+      <main id="viewExplore">
+        <!-- Step 1: Team Select Grid -->
+        <div id="sectionTeamSelect" class="animate-pop-in">
+          <div class="text-center mb-6">
+            <span class="inline-block bg-emerald-100 text-emerald-800 font-bold px-4 py-1.5 rounded-full text-sm sm:text-base mb-2">
+              🔍 탐험할 모둠을 골라보아요!
+            </span>
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-700">어떤 살터에 사는 친구들을 만날까요?</h2>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <!-- 1모둠 -->
+            <button onclick="selectTeam(1)" class="btn-bounce group p-5 bg-gradient-to-br from-blue-50 to-cyan-100 hover:from-blue-100 hover:to-cyan-200 border-4 border-blue-200 hover:border-blue-300 rounded-3xl shadow-md text-left flex items-center gap-4 transition-all">
+              <div class="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-2xl flex items-center justify-center text-3xl sm:text-4xl shadow-inner border-2 border-blue-100 group-hover:scale-110 transition-transform">
+                🌊
+              </div>
+              <div>
+                <span class="bg-blue-500 text-white font-black text-xs sm:text-sm px-2.5 py-1 rounded-full inline-block mb-1">1모둠</span>
+                <h3 class="text-lg sm:text-xl font-extrabold text-blue-900">바다에 사는 동물</h3>
+                <p class="text-xs sm:text-sm text-blue-700 font-medium mt-0.5">넓고 깊은 바닷속 친구들</p>
+              </div>
+            </button>
+
+            <!-- 2모둠 -->
+            <button onclick="selectTeam(2)" class="btn-bounce group p-5 bg-gradient-to-br from-teal-50 to-emerald-100 hover:from-teal-100 hover:to-emerald-200 border-4 border-teal-200 hover:border-teal-300 rounded-3xl shadow-md text-left flex items-center gap-4 transition-all">
+              <div class="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-2xl flex items-center justify-center text-3xl sm:text-4xl shadow-inner border-2 border-teal-100 group-hover:scale-110 transition-transform">
+                🌾
+              </div>
+              <div>
+                <span class="bg-teal-600 text-white font-black text-xs sm:text-sm px-2.5 py-1 rounded-full inline-block mb-1">2모둠</span>
+                <h3 class="text-lg sm:text-xl font-extrabold text-teal-900">강과 습지 동물</h3>
+                <p class="text-xs sm:text-sm text-teal-700 font-medium mt-0.5">맑은 물가에 사는 친구들</p>
+              </div>
+            </button>
+
+            <!-- 3모둠 -->
+            <button onclick="selectTeam(3)" class="btn-bounce group p-5 bg-gradient-to-br from-green-50 to-lime-100 hover:from-green-100 hover:to-lime-200 border-4 border-green-200 hover:border-green-300 rounded-3xl shadow-md text-left flex items-center gap-4 transition-all">
+              <div class="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-2xl flex items-center justify-center text-3xl sm:text-4xl shadow-inner border-2 border-green-100 group-hover:scale-110 transition-transform">
+                🌲
+              </div>
+              <div>
+                <span class="bg-green-600 text-white font-black text-xs sm:text-sm px-2.5 py-1 rounded-full inline-block mb-1">3모둠</span>
+                <h3 class="text-lg sm:text-xl font-extrabold text-green-900">숲에 사는 동물</h3>
+                <p class="text-xs sm:text-sm text-green-700 font-medium mt-0.5">푸른 나무와 숲속 친구들</p>
+              </div>
+            </button>
+
+            <!-- 4모둠 -->
+            <button onclick="selectTeam(4)" class="btn-bounce group p-5 bg-gradient-to-br from-amber-50 to-orange-100 hover:from-amber-100 hover:to-orange-200 border-4 border-amber-200 hover:border-amber-300 rounded-3xl shadow-md text-left flex items-center gap-4 transition-all">
+              <div class="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-2xl flex items-center justify-center text-3xl sm:text-4xl shadow-inner border-2 border-amber-100 group-hover:scale-110 transition-transform">
+                🏜️
+              </div>
+              <div>
+                <span class="bg-amber-600 text-white font-black text-xs sm:text-sm px-2.5 py-1 rounded-full inline-block mb-1">4모둠</span>
+                <h3 class="text-lg sm:text-xl font-extrabold text-amber-900">초원과 사막 동물</h3>
+                <p class="text-xs sm:text-sm text-amber-700 font-medium mt-0.5">넓은 들판과 모래 사막 친구들</p>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 2: Animal Card Numbers & Info View -->
+        <div id="sectionAnimalExplore" class="hidden animate-pop-in">
+          <!-- Team Header Title -->
+          <div class="bg-emerald-100/80 border-2 border-emerald-300 rounded-2xl p-4 text-center mb-6">
+            <h2 id="teamTitleText" class="text-xl sm:text-2xl font-black text-emerald-900">
+              <!-- Dynamic Title -->
+            </h2>
+          </div>
+
+          <!-- Numbers Grid [1] [2] [3] [4] [5] -->
+          <div class="mb-6">
+            <p class="text-center font-bold text-slate-600 mb-3 text-sm sm:text-base">
+              👇 카드 번호를 누르면 동물 친구가 나타나요!
+            </p>
+            <div class="flex justify-center items-center gap-2 sm:gap-4 flex-wrap">
+              <button onclick="selectAnimalCard(1)" id="btnNum1" class="btn-bounce w-14 h-14 sm:w-16 sm:h-16 text-xl sm:text-2xl font-black rounded-2xl bg-white border-4 border-emerald-400 text-emerald-700 shadow-md hover:bg-emerald-50">1</button>
+              <button onclick="selectAnimalCard(2)" id="btnNum2" class="btn-bounce w-14 h-14 sm:w-16 sm:h-16 text-xl sm:text-2xl font-black rounded-2xl bg-white border-4 border-emerald-400 text-emerald-700 shadow-md hover:bg-emerald-50">2</button>
+              <button onclick="selectAnimalCard(3)" id="btnNum3" class="btn-bounce w-14 h-14 sm:w-16 sm:h-16 text-xl sm:text-2xl font-black rounded-2xl bg-white border-4 border-emerald-400 text-emerald-700 shadow-md hover:bg-emerald-50">3</button>
+              <button onclick="selectAnimalCard(4)" id="btnNum4" class="btn-bounce w-14 h-14 sm:w-16 sm:h-16 text-xl sm:text-2xl font-black rounded-2xl bg-white border-4 border-emerald-400 text-emerald-700 shadow-md hover:bg-emerald-50">4</button>
+              <button onclick="selectAnimalCard(5)" id="btnNum5" class="btn-bounce w-14 h-14 sm:w-16 sm:h-16 text-xl sm:text-2xl font-black rounded-2xl bg-white border-4 border-emerald-400 text-emerald-700 shadow-md hover:bg-emerald-50">5</button>
+            </div>
+          </div>
+
+          <!-- Selected Animal Information Card -->
+          <div id="animalInfoDisplay" class="hidden animate-pop-in bg-amber-50/90 border-4 border-amber-200 rounded-3xl p-6 sm:p-8 shadow-lg relative overflow-hidden">
+            <div class="flex flex-col sm:flex-row items-center gap-6">
+              <!-- Big Emoji Badge -->
+              <div class="w-28 h-28 sm:w-36 sm:h-36 bg-white rounded-3xl border-4 border-amber-300 flex items-center justify-center text-6xl sm:text-7xl shadow-md shrink-0 animate-bounce">
+                <span id="animalEmoji">🐢</span>
+              </div>
+              
+              <!-- Text Info -->
+              <div class="flex-1 text-center sm:text-left">
+                <div class="inline-block bg-amber-200 text-amber-900 font-extrabold text-xs sm:text-sm px-3 py-1 rounded-full mb-2" id="animalBadge">
+                  [ 1번 동물 공개 ]
+                </div>
+                <h3 class="text-2xl sm:text-3xl font-black text-slate-800 mb-3" id="animalName">
+                  푸른바다거북
+                </h3>
+                <div class="bg-white/80 p-4 rounded-2xl border-2 border-amber-100 text-slate-700 text-base sm:text-lg font-bold leading-relaxed shadow-sm">
+                  <i class="fa-solid fa-quote-left text-amber-400 mr-2"></i>
+                  <span id="animalDesc">바다를 헤엄치며 쓰레기 때문에 위험에 처해 있어요.</span>
+                  <i class="fa-solid fa-quote-right text-amber-400 ml-2"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty Helper Message -->
+          <div id="animalInfoPlaceholder" class="p-8 text-center bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl text-slate-400 font-bold">
+            <i class="fa-regular fa-hand-pointer text-3xl mb-2 block animate-pulse"></i>
+            위의 번호 버튼을 눌러 동물 친구를 확인해보세요!
+          </div>
+        </div>
+      </main>
+
+      <!-- PAGE 2: QUIZ VIEW -->
+      <main id="viewQuiz" class="hidden animate-pop-in">
+        <div id="quizContainer">
+          <!-- Quiz Progress Header -->
+          <div class="flex items-center justify-between mb-4 bg-orange-100/70 p-3.5 rounded-2xl border border-orange-200">
+            <span class="font-extrabold text-orange-800 text-sm sm:text-base flex items-center gap-2">
+              <i class="fa-solid fa-star text-amber-500"></i>
+              <span id="quizProgressText">문제 1 / 3</span>
+            </span>
+            <span class="text-xs sm:text-sm font-bold text-orange-700 bg-white px-3 py-1 rounded-full border border-orange-200">
+              점수: <span id="quizScoreText" class="text-orange-600 font-black">0</span>점
+            </span>
+          </div>
+
+          <!-- Question Box -->
+          <div class="bg-white border-4 border-orange-200 rounded-3xl p-6 sm:p-8 shadow-md mb-6 text-center relative">
+            <span class="inline-block bg-orange-500 text-white font-black text-xs sm:text-sm px-3 py-1 rounded-full mb-3" id="quizCategoryBadge">
+              OX 퀴즈
+            </span>
+            <h3 class="text-xl sm:text-2xl font-black text-slate-800 leading-snug" id="quizQuestionText">
+              대왕고래는 지구에서 가장 큰 동물이지만 바다 오염 때문에 힘들어해요.
+            </h3>
+          </div>
+
+          <!-- Options Grid -->
+          <div id="quizOptionsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            <!-- Dynamic Options will be injected -->
+          </div>
+
+          <!-- Feedback Overlay Alert Box -->
+          <div id="quizFeedbackBox" class="hidden animate-pop-in p-5 rounded-2xl text-center border-4 font-black text-lg mb-4">
+            <div id="quizFeedbackContent"></div>
+          </div>
+
+          <!-- Next Question Button -->
+          <div class="flex justify-end">
+            <button id="btnNextQuiz" onclick="nextQuestion()" class="hidden btn-bounce w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black text-lg rounded-2xl shadow-lg flex items-center justify-center gap-2">
+              <span>다음 문제 풀기</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Quiz Completion Screen -->
+        <div id="quizResultScreen" class="hidden text-center py-6 animate-pop-in">
+          <div class="w-28 h-28 bg-amber-100 rounded-full border-4 border-amber-300 flex items-center justify-center text-6xl mx-auto mb-4 shadow-md animate-bounce">
+            🏆
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-black text-slate-800 mb-2">우와! 퀴즈 탐험 완료!</h2>
+          <p class="text-slate-600 text-base sm:text-lg font-bold mb-6">
+            우리 친구는 멋진 <span class="text-emerald-600 font-black">멸종위기 동물 수호대</span>예요!
+          </p>
+
+          <div class="bg-orange-50 border-2 border-orange-200 rounded-2xl p-6 max-w-sm mx-auto mb-8 shadow-sm">
+            <span class="text-slate-500 font-bold text-sm block mb-1">최종 탐험 점수</span>
+            <span class="text-4xl font-black text-orange-600" id="finalScoreText">100점</span>
+          </div>
+
+          <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <button onclick="resetQuiz()" class="btn-bounce px-6 py-3.5 bg-orange-500 hover:bg-orange-600 text-white font-black text-base rounded-2xl shadow-md flex items-center justify-center gap-2">
+              <i class="fa-solid fa-rotate-right"></i>
+              <span>퀴즈 다시 풀기</span>
+            </button>
+            <button onclick="goHome()" class="btn-bounce px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-base rounded-2xl shadow-md flex items-center justify-center gap-2">
+              <i class="fa-solid fa-compass"></i>
+              <span>동물 탐험하러 가기</span>
+            </button>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Footer Note -->
+    <footer class="mt-6 pt-4 border-t border-slate-200/60 text-center">
+      <p class="text-xs sm:text-sm text-slate-400 font-medium">
+        🌿 멸종위기 동물 친구들을 위해 쓰레기를 줄이고 자연을 사랑해 주세요!
+      </p>
+    </footer>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       DATABASE: 모둠별 동물 정보
+       ========================================================================== */
+    const animalDatabase = {
+      1: {
+        name: "1모둠: 바다에 사는 동물",
+        themeBg: "bg-blue-50",
+        animals: {
+          1: { name: "푸른바다거북", desc: "바다를 헤엄치며 쓰레기 때문에 위험에 처해 있어요.", emoji: "🐢" },
+          2: { name: "대왕고래", desc: "지구에서 가장 큰 동물이지만 바다 오염으로 힘들어해요.", emoji: "🐋" },
+          3: { name: "듀공", desc: "바닷속 풀을 먹고 사는 순한 친구예요.", emoji: "🧜‍♂️" },
+          4: { name: "크릴", desc: "바다 친구들의 맛있는 먹이가 되는 작은 새우 모양 친구예요.", emoji: "🦐" },
+          5: { name: "바키타돌고래", desc: "세계에서 가장 작은 돌고래로 수효가 아주 적어요.", emoji: "🐬" }
+        }
+      },
+      2: {
+        name: "2모둠: 강과 습지에 사는 동물",
+        themeBg: "bg-teal-50",
+        animals: {
+          1: { name: "아홀로틀", desc: "귀여운 겉지느러미가 있는 웃는 얼굴의 도롱뇽이에요.", emoji: "🦎" },
+          2: { name: "투구새우", desc: "옛날 공룡 시대부터 살아온 살아있는 신기한 생물이에요.", emoji: "🦐" },
+          3: { name: "저어새", desc: "주걱 모양의 주둥이로 물을 저으며 먹이를 찾아야 해요.", emoji: "🦩" },
+          4: { name: "두루미", desc: "머리에 붉은 면류관을 쓴 것처럼 생긴 멋진 새예요.", emoji: "🦩" },
+          5: { name: "양쯔강돌고래", desc: "강에 사는 분홍빛 귀여운 돌고래예요.", emoji: "🐬" }
+        }
+      },
+      3: {
+        name: "3모둠: 숲에 사는 동물",
+        themeBg: "bg-green-50",
+        animals: {
+          1: { name: "벵골호랑이", desc: "숲속의 멋진 왕이지만 살 곳이 줄어들고 있어요.", emoji: "🐯" },
+          2: { name: "레서판다", desc: "귀여운 얼굴과 풍성한 꼬리를 가진 꼬마 판다예요.", emoji: "🦊" },
+          3: { name: "아무르표범", desc: "추운 숲에 살며 아름다운 점박이 무늬를 가졌어요.", emoji: "🐆" },
+          4: { name: "아시아코끼리", desc: "커다란 귀와 긴 코로 숲을 지키는 파수꾼이에요.", emoji: "🐘" },
+          5: { name: "반달가슴곰", desc: "가슴에 흰색 반달 무늬가 있는 소중한 우리 곰이에요.", emoji: "🐻" }
+        }
+      },
+      4: {
+        name: "4모둠: 초원과 사막에 사는 동물",
+        themeBg: "bg-amber-50",
+        animals: {
+          1: { name: "치타", desc: "세상에서 가장 빠르게 달릴 수 있는 동물이에요.", emoji: "🐆" },
+          2: { name: "아닥스", desc: "사막을 건너는 멋진 비틀린 뿔을 가진 안틸롭이에요.", emoji: "🦌" },
+          3: { name: "남아메리카사막여우", desc: "커다란 귀로 사막의 소리를 잘 들어요.", emoji: "🦊" },
+          4: { name: "사막여우", desc: "체온을 조절하는 큰 귀와 모래색 털을 가진 여우예요.", emoji: "🦊" },
+          5: { name: "아프리카들개", desc: "무리를 지어 함께 서로를 도우며 살아가는 들개예요.", emoji: "🐕" }
+        }
+      }
+    };
+
+    /* ==========================================================================
+       DATABASE: 동물 퀴즈 데이터
+       ========================================================================== */
+    const quizDatabase = [
+      {
+        type: "ox",
+        category: "⭕❌ OX 퀴즈",
+        question: "대왕고래는 지구에서 가장 큰 동물이지만 바다 오염으로 힘들어하고 있어요.",
+        options: [
+          { text: "⭕ 맞아요!", isCorrect: true },
+          { text: "❌ 틀려요!", isCorrect: false }
+        ],
+        explanation: "맞아요! 대왕고래는 가장 큰 동물이지만 바다가 지저분해져 힘들어해요."
+      },
+      {
+        type: "choice",
+        category: "🧩 알아맞혀 보세요!",
+        question: "옛날 공룡 시대부터 지금까지 살아온 살아있는 신기한 생물은 누구일까요?",
+        options: [
+          { text: "1. 투구새우", isCorrect: true },
+          { text: "2. 반달가슴곰", isCorrect: false },
+          { text: "3. 레서판다", isCorrect: false }
+        ],
+        explanation: "정답이에요! 투구새우는 공룡 시대부터 살아온 신기한 친구예요!"
+      },
+      {
+        type: "choice",
+        category: "🧩 알아맞혀 보세요!",
+        question: "가슴에 흰색 반달 무늬가 있는 소중한 우리 곰 친구의 이름은 무엇일까요?",
+        options: [
+          { text: "1. 사막여우", isCorrect: false },
+          { text: "2. 반달가슴곰", isCorrect: true },
+          { text: "3. 푸른바다거북", isCorrect: false }
+        ],
+        explanation: "참 잘했어요! 가슴에 예쁜 반달 무늬가 있는 반달가슴곰이에요."
+      },
+      {
+        type: "ox",
+        category: "⭕❌ OX 퀴즈",
+        question: "사막여우는 커다란 귀로 체온을 조절하고 소리를 잘 들을 수 있어요.",
+        options: [
+          { text: "⭕ 맞아요!", isCorrect: true },
+          { text: "❌ 틀려요!", isCorrect: false }
+        ],
+        explanation: "딩동댕! 사막여우의 커다란 귀는 체온 조절도 하고 소리도 잘 들어요!"
+      }
+    ];
+
+    /* ==========================================================================
+       APP STATE MANAGEMENT
+       ========================================================================== */
+    let currentMainTab = 'explore'; // 'explore' | 'quiz'
+    let currentTeam = null;        // null | 1 | 2 | 3 | 4
+    let currentAnimalNum = null;   // null | 1 | 2 | 3 | 4 | 5
+
+    let currentQuizIndex = 0;
+    let quizScore = 0;
+    let isQuizAnswered = false;
+
+    /* ==========================================================================
+       NAVIGATION FUNCTIONS
+       ========================================================================== */
+    function updateNavigationUI() {
+      const btnBack = document.getElementById('btnBack');
+
+      // Show back button only when deeper in explore mode or quiz mode
+      if (currentMainTab === 'explore' && currentTeam !== null) {
+        btnBack.classList.remove('hidden');
+      } else {
+        btnBack.classList.add('hidden');
+      }
+    }
+
+    function goHome() {
+      currentMainTab = 'explore';
+      currentTeam = null;
+      currentAnimalNum = null;
+
+      switchMainTab('explore');
+      showTeamSelectView();
+      resetQuiz();
+    }
+
+    function goBack() {
+      if (currentMainTab === 'explore' && currentTeam !== null) {
+        showTeamSelectView();
+      } else {
+        goHome();
+      }
+    }
+
+    function switchMainTab(tab) {
+      currentMainTab = tab;
+      
+      const tabExplore = document.getElementById('tabExplore');
+      const tabQuiz = document.getElementById('tabQuiz');
+      const viewExplore = document.getElementById('viewExplore');
+      const viewQuiz = document.getElementById('viewQuiz');
+
+      if (tab === 'explore') {
+        tabExplore.className = "py-3 px-4 rounded-xl font-bold text-base sm:text-lg transition-all duration-200 flex items-center justify-center gap-2 bg-white text-emerald-700 shadow-md";
+        tabQuiz.className = "py-3 px-4 rounded-xl font-bold text-base sm:text-lg transition-all duration-200 flex items-center justify-center gap-2 text-emerald-800 hover:bg-white/50";
+        
+        viewExplore.classList.remove('hidden');
+        viewQuiz.classList.add('hidden');
+        document.getElementById('headerSubtitle').innerText = "소중한 우리 동물 친구들을 지켜주세요!";
+      } else {
+        tabQuiz.className = "py-3 px-4 rounded-xl font-bold text-base sm:text-lg transition-all duration-200 flex items-center justify-center gap-2 bg-white text-orange-600 shadow-md";
+        tabExplore.className = "py-3 px-4 rounded-xl font-bold text-base sm:text-lg transition-all duration-200 flex items-center justify-center gap-2 text-emerald-800 hover:bg-white/50";
+        
+        viewExplore.classList.add('hidden');
+        viewQuiz.classList.remove('hidden');
+        document.getElementById('headerSubtitle').innerText = "퀴즈를 풀며 동물 전문가가 되어보아요!";
+        
+        if (currentQuizIndex === 0 && !isQuizAnswered) {
+          loadQuizQuestion();
+        }
+      }
+
+      updateNavigationUI();
+    }
+
+    /* ==========================================================================
+       PAGE 1: EXPLORE FUNCTIONS
+       ========================================================================== */
+    function showTeamSelectView() {
+      currentTeam = null;
+      currentAnimalNum = null;
+
+      document.getElementById('sectionTeamSelect').classList.remove('hidden');
+      document.getElementById('sectionAnimalExplore').classList.add('hidden');
+      updateNavigationUI();
+    }
+
+    function selectTeam(teamNum) {
+      currentTeam = teamNum;
+      currentAnimalNum = null;
+
+      document.getElementById('sectionTeamSelect').classList.add('hidden');
+      document.getElementById('sectionAnimalExplore').classList.remove('hidden');
+
+      // Set Header Title
+      const teamData = animalDatabase[teamNum];
+      document.getElementById('teamTitleText').innerText = teamData.name;
+
+      // Reset Number Buttons
+      resetNumberButtons();
+
+      // Reset Info Card
+      document.getElementById('animalInfoDisplay').classList.add('hidden');
+      document.getElementById('animalInfoPlaceholder').classList.remove('hidden');
+
+      updateNavigationUI();
+    }
+
+    function resetNumberButtons() {
+      for (let i = 1; i <= 5; i++) {
+        const btn = document.getElementById(`btnNum${i}`);
+        btn.className = "btn-bounce w-14 h-14 sm:w-16 sm:h-16 text-xl sm:text-2xl font-black rounded-2xl bg-white border-4 border-emerald-400 text-emerald-700 shadow-md hover:bg-emerald-50";
+      }
+    }
+
+    function selectAnimalCard(num) {
+      if (!currentTeam) return;
+      currentAnimalNum = num;
+
+      resetNumberButtons();
+
+      // Highlight Active Button
+      const activeBtn = document.getElementById(`btnNum${num}`);
+      activeBtn.className = "btn-bounce w-14 h-14 sm:w-16 sm:h-16 text-xl sm:text-2xl font-black rounded-2xl bg-amber-400 border-4 border-amber-600 text-amber-950 shadow-lg scale-110";
+
+      // Render Animal Information Card
+      const animal = animalDatabase[currentTeam].animals[num];
+      
+      document.getElementById('animalEmoji').innerText = animal.emoji;
+      document.getElementById('animalBadge').innerText = `[ ${num}번 동물 공개 ]`;
+      document.getElementById('animalName').innerText = animal.name;
+      document.getElementById('animalDesc').innerText = animal.desc;
+
+      document.getElementById('animalInfoPlaceholder').classList.add('hidden');
+      
+      const infoDisplay = document.getElementById('animalInfoDisplay');
+      infoDisplay.classList.remove('hidden');
+      // Re-trigger animation
+      infoDisplay.classList.remove('animate-pop-in');
+      void infoDisplay.offsetWidth; // reflow
+      infoDisplay.classList.add('animate-pop-in');
+    }
+
+    /* ==========================================================================
+       PAGE 2: QUIZ FUNCTIONS
+       ========================================================================== */
+    function loadQuizQuestion() {
+      isQuizAnswered = false;
+
+      const quiz = quizDatabase[currentQuizIndex];
+
+      // Update UI Header
+      document.getElementById('quizProgressText').innerText = `문제 ${currentQuizIndex + 1} / ${quizDatabase.length}`;
+      document.getElementById('quizScoreText').innerText = quizScore;
+      document.getElementById('quizCategoryBadge').innerText = quiz.category;
+      document.getElementById('quizQuestionText').innerText = quiz.question;
+
+      // Hide Feedback & Next Button
+      document.getElementById('quizFeedbackBox').classList.add('hidden');
+      document.getElementById('btnNextQuiz').classList.add('hidden');
+
+      // Render Options
+      const optionsGrid = document.getElementById('quizOptionsGrid');
+      optionsGrid.innerHTML = '';
+
+      if (quiz.type === 'ox') {
+        optionsGrid.className = "grid grid-cols-2 gap-4 mb-6";
+      } else {
+        optionsGrid.className = "grid grid-cols-1 gap-3 mb-6";
+      }
+
+      quiz.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.onclick = () => handleAnswerSelect(opt, btn);
+        btn.className = "btn-bounce p-4 sm:p-5 bg-white border-4 border-amber-200 hover:border-amber-400 text-slate-800 font-black text-lg sm:text-xl rounded-2xl shadow-md text-center transition-all flex items-center justify-center gap-2";
+        btn.innerText = opt.text;
+        optionsGrid.appendChild(btn);
+      });
+    }
+
+    function handleAnswerSelect(selectedOption, clickedBtn) {
+      if (isQuizAnswered) return;
+      isQuizAnswered = true;
+
+      const quiz = quizDatabase[currentQuizIndex];
+      const feedbackBox = document.getElementById('quizFeedbackBox');
+      const feedbackContent = document.getElementById('quizFeedbackContent');
+
+      // Disable all option buttons
+      const allBtns = document.getElementById('quizOptionsGrid').querySelectorAll('button');
+      allBtns.forEach(btn => btn.disabled = true);
+
+      if (selectedOption.isCorrect) {
+        quizScore += 25;
+        document.getElementById('quizScoreText').innerText = quizScore;
+
+        clickedBtn.className = "p-4 sm:p-5 bg-emerald-500 border-4 border-emerald-700 text-white font-black text-lg sm:text-xl rounded-2xl shadow-lg text-center scale-105";
+        
+        feedbackBox.className = "animate-pop-in p-5 rounded-2xl text-center border-4 border-emerald-300 bg-emerald-100 text-emerald-900 font-black text-lg mb-4";
+        feedbackContent.innerHTML = `
+          <div class="text-2xl mb-1">🎉 정답이에요! 참 잘했어요!</div>
+          <div class="text-sm font-bold text-emerald-800">${quiz.explanation}</div>
+        `;
+      } else {
+        clickedBtn.className = "p-4 sm:p-5 bg-rose-500 border-4 border-rose-700 text-white font-black text-lg sm:text-xl rounded-2xl shadow-lg text-center opacity-80";
+        
+        feedbackBox.className = "animate-pop-in p-5 rounded-2xl text-center border-4 border-amber-300 bg-amber-100 text-amber-900 font-black text-lg mb-4";
+        feedbackContent.innerHTML = `
+          <div class="text-2xl mb-1">아쉬워요! 다음엔 꼭 맞춰보아요! 💪</div>
+          <div class="text-sm font-bold text-amber-800">${quiz.explanation}</div>
+        `;
+      }
+
+      feedbackBox.classList.remove('hidden');
+      document.getElementById('btnNextQuiz').classList.remove('hidden');
+    }
+
+    function nextQuestion() {
+      currentQuizIndex++;
+
+      if (currentQuizIndex < quizDatabase.length) {
+        loadQuizQuestion();
+      } else {
+        showQuizResult();
+      }
+    }
+
+    function showQuizResult() {
+      document.getElementById('quizContainer').classList.add('hidden');
+      document.getElementById('quizResultScreen').classList.remove('hidden');
+      document.getElementById('finalScoreText').innerText = `${quizScore}점`;
+    }
+
+    function resetQuiz() {
+      currentQuizIndex = 0;
+      quizScore = 0;
+      isQuizAnswered = false;
+
+      document.getElementById('quizContainer').classList.remove('hidden');
+      document.getElementById('quizResultScreen').classList.add('hidden');
+
+      if (currentMainTab === 'quiz') {
+        loadQuizQuestion();
+      }
+    }
+
+    /* Initialize App */
+    window.onload = function() {
+      updateNavigationUI();
+    };
+  </script>
+</body>
+</html>
